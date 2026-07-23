@@ -1,0 +1,1 @@
+# AlgebraLineal-PixelForgeMathEngine-GrupoB2026-2
