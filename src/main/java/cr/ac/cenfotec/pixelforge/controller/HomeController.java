@@ -8,6 +8,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String mostrarInicio() {
-        return "index";
+        return "redirect:/engine";
     }
 }

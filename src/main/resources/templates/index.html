@@ -1,64 +1,421 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>PixelForge MathEngine 2D</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
-        }
-
-        header {
-            background-color: #172554;
-            color: white;
-            padding: 24px;
-            text-align: center;
-        }
-
-        main {
-            width: 90%;
-            max-width: 1100px;
-            margin: 30px auto;
-        }
-
-        .panel {
-            background-color: white;
-            padding: 24px;
-            border-radius: 10px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
-        }
-
-        .estado {
-            padding: 12px;
-            background-color: #dcfce7;
-            border: 1px solid #22c55e;
-            border-radius: 6px;
-            color: #166534;
-        }
-    </style>
+    <link rel="stylesheet"
+          href="/css/styles.css"
+          th:href="@{/css/styles.css}">
 </head>
 
 <body>
 
-<header>
-    <h1>PixelForge MathEngine 2D v1.0</h1>
-    <p>Motor matemático para transformaciones geométricas</p>
+<header class="main-header">
+    <div class="header-content">
+        <div>
+            <span class="version">PixelForge Studios</span>
+
+            <h1>MathEngine 2D v1.0</h1>
+
+            <p>
+                Motor matemático de transformaciones
+                geométricas
+            </p>
+        </div>
+    </div>
 </header>
 
-<main>
-    <section class="panel">
-        <h2>Estado del sistema</h2>
+<main class="main-container">
 
-        <div class="estado">
-            Spring Boot y Thymeleaf están funcionando correctamente.
+    <div class="error-message"
+         th:if="${errorMessage != null}"
+         th:text="${errorMessage}">
+    </div>
+
+    <section class="top-grid">
+
+        <article class="card">
+            <div class="card-header">
+                <div>
+                    <span class="section-label">
+                        Actividad #2
+                    </span>
+
+                    <h2>Aplicar transformación</h2>
+                </div>
+            </div>
+
+            <form method="post"
+                  th:action="@{/engine/transform}"
+                  th:object="${request}"
+                  id="transformationForm">
+
+                <div class="form-group">
+                    <label for="transformationType">
+                        Transformación
+                    </label>
+
+                    <select id="transformationType"
+                            th:field="*{type}">
+                        <option value="translation">
+                            Traslación
+                        </option>
+
+                        <option value="rotation">
+                            Rotación
+                        </option>
+
+                        <option value="scaling">
+                            Escalamiento
+                        </option>
+
+                        <option value="reflectionX">
+                            Reflexión respecto al eje X
+                        </option>
+
+                        <option value="reflectionY">
+                            Reflexión respecto al eje Y
+                        </option>
+
+                        <option value="reflectionOrigin">
+                            Reflexión respecto al origen
+                        </option>
+
+                        <option value="reflectionYEqualsX">
+                            Reflexión respecto a y = x
+                        </option>
+                    </select>
+                </div>
+
+                <div class="values-grid"
+                     id="valuesContainer">
+
+                    <div class="form-group"
+                         id="value1Group">
+                        <label for="value1"
+                               id="value1Label">
+                            Ángulo en grados
+                        </label>
+
+                        <input type="number"
+                               id="value1"
+                               th:field="*{value1}"
+                               step="any">
+                    </div>
+
+                    <div class="form-group"
+                         id="value2Group">
+                        <label for="value2"
+                               id="value2Label">
+                            Segundo valor
+                        </label>
+
+                        <input type="number"
+                               id="value2"
+                               th:field="*{value2}"
+                               step="any">
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="button primary-button">
+                    Aplicar transformación
+                </button>
+            </form>
+
+            <form method="post"
+                  th:action="@{/engine/reset}">
+                <button type="submit"
+                        class="button secondary-button">
+                    Reiniciar figura e historial
+                </button>
+            </form>
+        </article>
+
+        <article class="card">
+            <div class="card-header">
+                <div>
+                    <span class="section-label">
+                        Figura actual
+                    </span>
+
+                    <h2 th:text="${figure.name}">
+                        Cuadrado
+                    </h2>
+                </div>
+            </div>
+
+            <p class="description">
+                Cada columna de la matriz representa un
+                vértice mediante coordenadas homogéneas.
+            </p>
+
+            <h3>Matriz original</h3>
+
+            <div class="matrix-container">
+                <table class="matrix">
+                    <tbody>
+                    <tr th:each="row : ${figure.originalMatrix}">
+                        <td th:each="value : ${row}"
+                            th:text="${#numbers.formatDecimal(value, 1, 4)}">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Matriz actual</h3>
+
+            <div class="matrix-container">
+                <table class="matrix">
+                    <tbody>
+                    <tr th:each="row : ${figure.currentMatrix}">
+                        <td th:each="value : ${row}"
+                            th:text="${#numbers.formatDecimal(value, 1, 4)}">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </article>
+
+    </section>
+
+    <section class="card graph-card">
+        <div class="card-header">
+            <div>
+                <span class="section-label">
+                    Representación gráfica
+                </span>
+
+                <h2>Plano cartesiano</h2>
+            </div>
+
+            <div class="legend">
+                <span class="legend-item original">
+                    Figura original
+                </span>
+
+                <span class="legend-item transformed">
+                    Figura actual
+                </span>
+            </div>
+        </div>
+
+        <canvas id="coordinateCanvas"
+                width="1000"
+                height="520">
+        </canvas>
+
+        <div id="pointData"
+             hidden>
+
+            <span class="original-point"
+                  th:each="point : ${figure.originalPoints}"
+                  th:attr="data-x=${point.x}, data-y=${point.y}">
+            </span>
+
+            <span class="current-point"
+                  th:each="point : ${figure.currentPoints}"
+                  th:attr="data-x=${point.x}, data-y=${point.y}">
+            </span>
         </div>
     </section>
+
+    <section class="results-grid">
+
+        <article class="card">
+            <div class="card-header">
+                <div>
+                    <span class="section-label">
+                        Coordenadas
+                    </span>
+
+                    <h2>Originales y actuales</h2>
+                </div>
+            </div>
+
+            <div class="coordinates-grid">
+
+                <div>
+                    <h3>Figura original</h3>
+
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Punto</th>
+                            <th>X</th>
+                            <th>Y</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="point, status :
+                                     ${figure.originalPoints}">
+                            <td th:text="'P' + ${status.count}">
+                            </td>
+
+                            <td th:text="${#numbers.formatDecimal(
+                                        point.x, 1, 4)}">
+                            </td>
+
+                            <td th:text="${#numbers.formatDecimal(
+                                        point.y, 1, 4)}">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3>Figura actual</h3>
+
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Punto</th>
+                            <th>X</th>
+                            <th>Y</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="point, status :
+                                     ${figure.currentPoints}">
+                            <td th:text="'P' + ${status.count}">
+                            </td>
+
+                            <td th:text="${#numbers.formatDecimal(
+                                        point.x, 1, 4)}">
+                            </td>
+
+                            <td th:text="${#numbers.formatDecimal(
+                                        point.y, 1, 4)}">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="card-header">
+                <div>
+                    <span class="section-label">
+                        Última operación
+                    </span>
+
+                    <h2 th:text="${lastTransformationName != null
+                                  ? lastTransformationName
+                                  : 'Sin transformaciones'}">
+                    </h2>
+                </div>
+            </div>
+
+            <div th:if="${lastMatrix != null}">
+
+                <h3>Matriz utilizada</h3>
+
+                <div class="matrix-container">
+                    <table class="matrix transformation-matrix">
+                        <tbody>
+                        <tr th:each="row : ${lastMatrix}">
+                            <td th:each="value : ${row}"
+                                th:text="${#numbers.formatDecimal(
+                                            value, 1, 4)}">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Fórmula</h3>
+
+                <p class="formula"
+                   th:text="${lastFormula}">
+                </p>
+            </div>
+
+            <p class="empty-state"
+               th:if="${lastMatrix == null}">
+                Aún no se ha aplicado ninguna transformación.
+            </p>
+        </article>
+
+    </section>
+
+    <section class="card"
+             th:if="${lastCalculations != null}">
+
+        <div class="card-header">
+            <div>
+                <span class="section-label">
+                    Desarrollo matemático
+                </span>
+
+                <h2>Cálculos realizados</h2>
+            </div>
+        </div>
+
+        <div class="calculation-list">
+            <div class="calculation"
+                 th:each="calculation : ${lastCalculations}"
+                 th:text="${calculation}">
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="card-header">
+            <div>
+                <span class="section-label">
+                    Actividad #4
+                </span>
+
+                <h2>Historial de transformaciones</h2>
+            </div>
+
+            <span class="history-counter"
+                  th:text="${history.size()} + ' operación(es)'">
+            </span>
+        </div>
+
+        <p class="empty-state"
+           th:if="${history.isEmpty()}">
+            No existen transformaciones registradas.
+        </p>
+
+        <ol class="history-list"
+            th:unless="${history.isEmpty()}">
+
+            <li th:each="record, status : ${history}">
+                <div class="history-number"
+                     th:text="${status.count}">
+                </div>
+
+                <div>
+                    <strong th:text="${record.transformationName}">
+                    </strong>
+
+                    <p th:text="${record.formula}">
+                    </p>
+                </div>
+            </li>
+        </ol>
+    </section>
+
 </main>
+
+<script th:src="@{/js/engine.js}"></script>
 
 </body>
 </html>
